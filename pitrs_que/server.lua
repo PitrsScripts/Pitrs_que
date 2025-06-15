@@ -8,7 +8,7 @@ AddEventHandler("playerConnecting", function(name, reject, d)
     local currentSteamID, currentDiscordID
     d.defer()
     Wait(50)
-    d.update(Config.Messages.HandshakingWith)
+    -- d.update(Config.Messages.HandshakingWith)
     Wait(250)
 
     for k, v in ipairs(GetPlayerIdentifiers(_source)) do
@@ -26,8 +26,8 @@ AddEventHandler("playerConnecting", function(name, reject, d)
     end
 
     if not currentSteamID then
-        reject(Config.Messages.NoSteam)
-        CancelEvent()
+        print("[DEBUG] Rejecting connection: No Steam running")
+        d.done("No Steam running")
         return
     end
 

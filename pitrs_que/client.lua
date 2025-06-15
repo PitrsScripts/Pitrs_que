@@ -27,6 +27,7 @@ AddEventHandler('pitrs_que:hideQueueUI', function()
     end
 end)
 
+
 Citizen.CreateThread(function()
     while true do
         Citizen.Wait(0)
