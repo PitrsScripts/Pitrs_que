@@ -1,6 +1,7 @@
 # Pitrs-connectque
 
 **Features**
+
 • Discord role-based queue priority
 • Steam and Discord ID verification
 • Adaptive UI displaying queue status using presentCard.json
