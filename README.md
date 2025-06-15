@@ -1,5 +1,8 @@
 # Pitrs-connectque
 
+❗Please note that you must have  sets steam_webApiKey enabled in server.cfg. (https://steamcommunity.com/dev/apikey) ❗
+
+
 **Features**
 
 * Discord role-based queue priority
