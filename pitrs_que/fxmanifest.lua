@@ -16,7 +16,9 @@ client_scripts {
 }
 
 files {
-    'presentCard.json'
+    'ui/presentCard.json',
+    'ui/index.html',
+    'ui/adaptivecards.min.js'
 }
 
-ui_page 'presentCard.json'
+ui_page 'ui/index.html'

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Queue UI</title>
+    <script src="https://unpkg.com/adaptivecards/dist/adaptivecards.min.js"></script>
+    <style>
+        body {
+            background-color: transparent;
+            margin: 0;
+            padding: 10px;
+            font-family: Arial, sans-serif;
+            color: white;
+        }
+        #cardContainer {
+            max-width: 600px;
+            margin: auto;
+        }
+    </style>
+</head>
+<body>
+    <div id="cardContainer"></div>
+
+    <script>
+        const cardContainer = document.getElementById('cardContainer');
+        const adaptiveCard = new AdaptiveCards.AdaptiveCard();
+
+        window.addEventListener('message', function(event) {
+            const data = event.data;
+            if (data.action === 'show' && data.card) {
+                try {
+                    adaptiveCard.parse(data.card);
+                    const renderedCard = adaptiveCard.render();
+                    cardContainer.innerHTML = '';
+                    cardContainer.appendChild(renderedCard);
+                } catch (e) {
+                    cardContainer.innerHTML = '<pre style="color:red;">Error rendering card: ' + e.message + '</pre>';
+                }
+            } else if (data.action === 'hide') {
+                cardContainer.innerHTML = '';
+            }
+        });
+    </script>
+</body>
+</html>

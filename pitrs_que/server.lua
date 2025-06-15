@@ -1,15 +1,15 @@
 local globalCounter, latestColor, ColorsTimeout = 0, nil, false
 local playersInfo, connectingInfo = {}, {} 
-local jsonCard = json.decode(LoadResourceFile(GetCurrentResourceName(), 'presentCard.json'))[1]
+local jsonCard = json.decode(LoadResourceFile(GetCurrentResourceName(), 'ui/presentCard.json'))[1]
 StopResource('hardcap')
 
 AddEventHandler("playerConnecting", function(name, reject, d)
     local _source = source
     local currentSteamID, currentDiscordID
     d.defer()
-    Wait(2050)
+    Wait(50)
     d.update(Config.Messages.HandshakingWith)
-    Wait(750)
+    Wait(250)
 
     for k, v in ipairs(GetPlayerIdentifiers(_source)) do
         if string.sub(v, 1, string.len("discord:")) == "discord:" then
@@ -34,6 +34,13 @@ AddEventHandler("playerConnecting", function(name, reject, d)
     if not ProccessQueue(currentSteamID, currentDiscordID, d, _source) then
         CancelEvent()
     end
+end)
+
+RegisterNetEvent('pitrs_que:requestQueueUI')
+AddEventHandler('pitrs_que:requestQueueUI', function()
+    local _source = source
+    local card = jsonCard
+    TriggerClientEvent('pitrs_que:showQueueUIWithData', _source, card)
 end)
 
 function ProccessQueue(steamID, discordID, d, _source)
@@ -90,6 +97,10 @@ function ProccessQueue(steamID, discordID, d, _source)
 			end
 
             local currentMessage = GetMessage()
+            -- Ensure the card is sent as a table, not as a JSON string
+            if type(currentMessage) == "string" then
+                currentMessage = json.decode(currentMessage)
+            end
             d.presentCard(currentMessage, function(data, rawData) end)
             Wait(0)
         until stop
