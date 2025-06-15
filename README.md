@@ -2,11 +2,11 @@
 
 **Features**
 
-• Discord role-based queue priority
-• Steam and Discord ID verification
-• Adaptive UI displaying queue status using presentCard.json
-• Handles player connection deferrals and queue management
-• Configurable maximum server slots and role points
+* Discord role-based queue priority
+* Steam and Discord ID verification
+* Adaptive UI displaying queue status using presentCard.json
+* Handles player connection deferrals and queue management
+* Configurable maximum server slots and role points
 
 
 
