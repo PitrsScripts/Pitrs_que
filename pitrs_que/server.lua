@@ -1,3 +1,15 @@
+local configValid = true
+
+if not Config.DiscordBotToken or Config.DiscordBotToken == "" then
+    print("^1[ERROR] Discord Bot Token is not set in config.lua!^0")
+    configValid = false
+end
+
+if not Config.DiscordServerID or Config.DiscordServerID == "" then
+    print("^1[ERROR] Discord Server ID is not set in config.lua!^0")
+    configValid = false
+end
+
 local globalCounter, latestColor, ColorsTimeout = 0, nil, false
 local playersInfo, connectingInfo = {}, {} 
 local jsonCard = json.decode(LoadResourceFile(GetCurrentResourceName(), 'ui/presentCard.json'))[1]
@@ -5,17 +17,21 @@ StopResource('hardcap')
 
 AddEventHandler("playerConnecting", function(name, reject, d)
     local _source = source
-    local currentSteamID, currentDiscordID
+    local currentDiscordID
     d.defer()
     Wait(50)
-    -- d.update(Config.Messages.HandshakingWith)
+    
+    if not configValid then
+        reject("Server configuration error: Discord settings not configured")
+        CancelEvent()
+        return
+    end
+
     Wait(250)
 
     for k, v in ipairs(GetPlayerIdentifiers(_source)) do
         if string.sub(v, 1, string.len("discord:")) == "discord:" then
             currentDiscordID = v
-        elseif string.sub(v, 1, string.len("steam:")) == "steam:" then
-            currentSteamID = v
         end
     end
 
@@ -25,13 +41,7 @@ AddEventHandler("playerConnecting", function(name, reject, d)
         return
     end
 
-    if not currentSteamID then
-        print("[DEBUG] Rejecting connection: No Steam running")
-        d.done("No Steam running")
-        return
-    end
-
-    if not ProccessQueue(currentSteamID, currentDiscordID, d, _source) then
+    if not ProccessQueue(currentDiscordID, d, _source) then
         CancelEvent()
     end
 end)
@@ -43,8 +53,14 @@ AddEventHandler('pitrs_que:requestQueueUI', function()
     TriggerClientEvent('pitrs_que:showQueueUIWithData', _source, card)
 end)
 
-function ProccessQueue(steamID, discordID, d, _source)
+function ProccessQueue(discordID, d, _source)
     local data = {name = nil, queuepts = 0}
+
+    if not configValid then
+        d.done("Discord configuration is incomplete!")
+        return false
+    end
+    
 	PerformHttpRequest("https://discordapp.com/api/guilds/" .. Config.DiscordServerID .. "/members/"..string.sub(discordID, 9), function(err, text, headers) 
 		if text ~= nil then
         	local member = json.decode(text)
@@ -75,29 +91,28 @@ function ProccessQueue(steamID, discordID, d, _source)
 			memberRoleNames = memberRoleNames ~= "" and memberRoleNames or "Member"
 
 
-        	AddPlayer(steamID, discordID, data.name, data.queuepts, memberRoleNames, _source, d)
+        	AddPlayer(discordID, data.name, data.queuepts, memberRoleNames, _source, d)
 		else
-        	AddPlayer(steamID, discordID, "Not Found", 0, "None", _source, d)
+        	AddPlayer(discordID, "Not Found", 0, "None", _source, d)
 		end
 		
         local stop = false
         repeat
         	for k, v in pairs(connectingInfo) do
-        		if v.steamID == steamID then
+        		if v.discordID == discordID then
         			stop = true
         		end
         	end
 
 			for k, v in ipairs(playersInfo) do
-				if v.steamID == steamID and (GetPlayerPing(v.source) == 0) then
-					dropPlayerFromQueue(steamID, discordID)
+				if v.discordID == discordID and (GetPlayerPing(v.source) == 0) then
+					dropPlayerFromQueue(discordID)
 					d.done(Config.Messages.Error)
 					return false
 				end
 			end
 
             local currentMessage = GetMessage()
-            -- Ensure the card is sent as a table, not as a JSON string
             if type(currentMessage) == "string" then
                 currentMessage = json.decode(currentMessage)
             end
@@ -113,14 +128,14 @@ end
 
 AddEventHandler("playerDropped", function(reason)
     local _source = source
-    dropPlayerFromQueue(GetPlayerIdentifier(_source, 1), GetPlayerIdentifier(_source, 3))
+    dropPlayerFromQueue(GetPlayerIdentifier(_source, 3))
 end)
 
 RegisterServerEvent('bb-queue:removeConnected')
 AddEventHandler('bb-queue:removeConnected', function()
 	local _source = source
 	for k, v in pairs(connectingInfo) do
-		if v.steamID == GetPlayerIdentifier(_source) then
+		if v.discordID == GetPlayerIdentifier(_source, 3) then
 			table.remove(connectingInfo, k)
 		end
 	end
@@ -137,7 +152,7 @@ Citizen.CreateThread(function()
     end
 end)
 
-function dropPlayerFromQueue(steamID, discordID, count)
+function dropPlayerFromQueue(discordID, count)
 	if count then
 		local queueCount = #playersInfo
     	for currentPlayer = count, queueCount do
@@ -145,7 +160,7 @@ function dropPlayerFromQueue(steamID, discordID, count)
     	end
 	else
 		for k, v in pairs(playersInfo) do
-			if v.steamID == steamID or v.discordID == discordID then
+			if v.discordID == discordID then
 				local queueCount = #playersInfo
     			local saveCred = nil
     			for currentPlayer = k + 1, queueCount do
@@ -158,13 +173,11 @@ function dropPlayerFromQueue(steamID, discordID, count)
 	end
 end
 
-function AddPlayer(steamID, discordID, discordName, queuePts, roleNames, source, d)
+function AddPlayer(discordID, discordName, queuePts, roleNames, source, d)
     local _source = source
 
     if #playersInfo == 0 then
     	playersInfo[1] = {
-    		steamID = steamID,
-    		steamName = GetPlayerName(_source),
     		discordID = discordID,
     		discordName = discordName, 
     		points = queuePts,
@@ -188,8 +201,6 @@ function AddPlayer(steamID, discordID, discordName, queuePts, roleNames, source,
     			end
 
     			playersInfo[k] = {
-    				steamID = steamID,
-    				steamName = GetPlayerName(_source),
     				discordID = discordID,
     				discordName = discordName, 
     				points = queuePts,
@@ -201,8 +212,6 @@ function AddPlayer(steamID, discordID, discordName, queuePts, roleNames, source,
     	end
 
     	playersInfo[#playersInfo + 1] = {
-    		steamID = steamID,
-    		steamName = GetPlayerName(_source),
     		discordID = discordID,
     		discordName = discordName, 
     		points = queuePts,
@@ -234,8 +243,8 @@ function ConnectFirst()
     	return 
     end
     
-    table.insert(connectingInfo, {steamID = playersInfo[1].steamID, source = playersInfo[1].source, errorsNum = 0})
-    dropPlayerFromQueue(nil, nil, 1)
+    table.insert(connectingInfo, {discordID = playersInfo[1].discordID, source = playersInfo[1].source, errorsNum = 0})
+    dropPlayerFromQueue(nil, 1)
 end
 
 function GetMessage()
@@ -244,7 +253,7 @@ function GetMessage()
     local counter = 1
     for k, v in pairs(playersInfo) do
     	if counter < 10 then
-        	msg = msg .. '['..tostring(k)..'] ' .. v.steamName .. ' (' .. v.discordName .. ') | ' .. v.roleNames .. '\n'
+        	msg = msg .. '['..tostring(k)..'] ' .. GetPlayerName(v.source) .. ' (' .. v.discordName .. ') | ' .. v.roleNames .. '\n'
         	counter = counter + 1
         elseif counter == 10 then
         	msg = msg .. 'And ' .. #playersInfo - counter .. ' more players.\n'

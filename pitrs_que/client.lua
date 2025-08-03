@@ -30,7 +30,7 @@ end)
 
 Citizen.CreateThread(function()
     while true do
-        Citizen.Wait(0)
+        Citizen.Wait(40)
         if display and IsControlJustReleased(0, 322) then 
             SetNuiFocus(false, false)
             SendNUIMessage({action = "hide"})
