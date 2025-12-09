@@ -143,7 +143,7 @@ end)
 
 Citizen.CreateThread(function()
     while true do
-        Citizen.Wait(3000)
+        Citizen.Wait(10000)
         CheckConnecting()
 
         if #playersInfo > 0 and #connectingInfo + #GetPlayers() < Config.maxServerSlots then
@@ -263,7 +263,7 @@ function GetMessage()
 
     cardd.body[2].text = msg
     cardd.body[3].text = "Queue Length: " .. tostring(#playersInfo) .. " | Player Count: " .. #GetPlayers() .. "/" .. Config.maxServerSlots
-    cardd.body[1].color = "Light"
+    cardd.body[2].color = "Light"
     cardd.body[3].color = "Light"
     cardd.body[4].color = "Light"
 
