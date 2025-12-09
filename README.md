@@ -2,6 +2,10 @@
 
 https://imgur.com/a/X9Gc9LI
 
+**SUPPORT LINK**
+https://imgbb.com/
+
+
 **Features**
 
 * Discord role-based queue priority
