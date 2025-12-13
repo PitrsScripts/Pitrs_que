@@ -116,6 +116,28 @@ function ProccessQueue(discordID, d, _source)
             if type(currentMessage) == "string" then
                 currentMessage = json.decode(currentMessage)
             end
+            local playerInfo = nil
+            for k, v in pairs(playersInfo) do
+                if v.discordID == discordID then
+                    playerInfo = v
+                    break
+                end
+            end
+            if playerInfo then
+                local position = nil
+                for k, v in pairs(playersInfo) do
+                    if v.discordID == discordID then
+                        position = k
+                        break
+                    end
+                end
+                local timeSpent = os.time() - playerInfo.startTime
+                local hours = math.floor(timeSpent / 3600)
+                local mins = math.floor((timeSpent % 3600) / 60)
+                local secs = timeSpent % 60
+                local timeStr = string.format("%02d:%02d:%02d", hours, mins, secs)
+                currentMessage.body[3].text = "Pozice: " .. position .. "/" .. #playersInfo .. " | Q-Pointy: " .. playerInfo.points .. " | Strávený čas: " .. timeStr
+            end
             d.presentCard(currentMessage, function(data, rawData) end)
             Wait(0)
         until stop
@@ -182,7 +204,8 @@ function AddPlayer(discordID, discordName, queuePts, roleNames, source, d)
     		discordName = discordName, 
     		points = queuePts,
     		roleNames = roleNames,
-    		source = _source
+    		source = _source,
+    		startTime = os.time()
     	}
     else
     	for k, v in pairs(playersInfo) do
@@ -205,7 +228,8 @@ function AddPlayer(discordID, discordName, queuePts, roleNames, source, d)
     				discordName = discordName, 
     				points = queuePts,
     				roleNames = roleNames,
-    				source = _source
+    				source = _source,
+    				startTime = os.time()
     			}
     			return
     		end
@@ -216,7 +240,8 @@ function AddPlayer(discordID, discordName, queuePts, roleNames, source, d)
     		discordName = discordName, 
     		points = queuePts,
     		roleNames = roleNames,
-    		source = _source
+    		source = _source,
+    		startTime = os.time()
     	}
     end
 end
@@ -224,7 +249,7 @@ end
 function CheckConnecting()
     for k, v in pairs(playersInfo) do
         if GetPlayerPing(v.source) == 500 then
-           	dropPlayerFromQueue(nil, nil, k)
+           	dropPlayerFromQueue(nil, k)
         end
     end
 
@@ -262,7 +287,7 @@ function GetMessage()
     end
 
     cardd.body[2].text = msg
-    cardd.body[3].text = "Queue Length: " .. tostring(#playersInfo) .. " | Player Count: " .. #GetPlayers() .. "/" .. Config.maxServerSlots
+    cardd.body[3].text = "Pozice: | Q-Pointy: | Strávený čas: "
     cardd.body[2].color = "Light"
     cardd.body[3].color = "Light"
     cardd.body[4].color = "Light"

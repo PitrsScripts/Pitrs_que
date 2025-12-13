@@ -22,7 +22,7 @@
       },
       {
         "type": "TextBlock",
-        "text": "Queue Length: 10",
+        "text": "Pozice: | Strávený čas: ",
         "color": "Light",
         "spacing": "Small",
         "horizontalAlignment": "Center",
@@ -30,12 +30,24 @@
       },
       {
         "type": "TextBlock",
-        "text": "Reserve your queue place now!",
+        "text": "Nebaví tě čekat v que? Kup si queue pointy na našem webu!",
         "horizontalAlignment": "Center",
         "weight": "Bolder",
         "color": "Light",
         "size": "Small",
         "spacing": "Small"
+      }
+    ],
+    "actions": [
+      {
+        "type": "Action.OpenUrl",
+        "title": "Otevřít Discord",
+        "url": "https://discord.com"
+      },
+      {
+        "type": "Action.OpenUrl",
+        "title": "Otevřít web",
+        "url": "https://example.com"
       }
     ]
   }

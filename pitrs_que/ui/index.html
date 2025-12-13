@@ -21,6 +21,8 @@
 <body>
     <div id="cardContainer"></div>
 
+ 
+
     <script>
         const cardContainer = document.getElementById('cardContainer');
         const adaptiveCard = new AdaptiveCards.AdaptiveCard();
@@ -33,11 +35,17 @@
                     const renderedCard = adaptiveCard.render();
                     cardContainer.innerHTML = '';
                     cardContainer.appendChild(renderedCard);
+                    document.getElementById('buttonDiv').style.display = 'block';
                 } catch (e) {
                     cardContainer.innerHTML = '<pre style="color:red;">Error rendering card: ' + e.message + '</pre>';
+                    document.getElementById('buttonDiv').style.display = 'none';
                 }
             } else if (data.action === 'hide') {
                 cardContainer.innerHTML = '';
+                document.getElementById('buttonDiv').style.display = 'none';
+            } else if (data.action === 'show') {
+                // show without card, hide buttons
+                document.getElementById('buttonDiv').style.display = 'none';
             }
         });
     </script>
