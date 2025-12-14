@@ -1,9 +1,5 @@
 # Pitrs-connectque
 
-https://imgur.com/a/X9Gc9LI
-
-**SUPPORT LINK**
-https://imgbb.com/
 
 
 **Features**
