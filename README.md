@@ -16,9 +16,10 @@
 * Define roles and their corresponding queue points in config.lua
 * Customize UI in presentCard.json
 
-
-Do not put this in the server cfg
-#sets steam_webApiKey
+**Listen**
+* You must set the discordID and bot token in the config.
+* Do not put this in the server cfg
+* #sets steam_webApiKey
 
 
 ### 📦 Resource Info
