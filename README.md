@@ -23,5 +23,5 @@
 |**Code is accessible**|Yes|
 |**Subscription-based**|No|
 |**Lines (approximately)**|~390|
-|**Requirements**|steamWebApiKey|
+|**Requirements**|esx|
 |**Support**|No|
